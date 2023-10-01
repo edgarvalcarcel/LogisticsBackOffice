@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <RootNamespace>LogisticsBackOffice.GraphQL</RootNamespace>
+        <LangVersion>default</LangVersion>
+        <AssemblyName>LogisticsBackOffice.GraphQL</AssemblyName>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+        <UserSecretsId>07a4f806-d52d-49aa-93f1-1f847e27e778</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Application\Application.csproj" />
+        <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="HotChocolate.AspNetCore" Version="13.5.1" />
+        <PackageReference Include="HotChocolate.AspNetCore.Voyager" Version="10.5.5" />
+        <PackageReference Include="HotChocolate.Data" Version="13.5.1" />
+        <PackageReference Include="HotChocolate.PersistedQueries.InMemory" Version="13.5.1" />
+        <PackageReference Include="HotChocolate.Types" Version="13.5.1" />
+        <PackageReference Include="HotChocolate.Types.Filters" Version="13.5.1" />
+        <PackageReference Include="HotChocolate.Types.Sorting" Version="13.5.1" />
+        <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.11">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Subscriptions\" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  grapghql:
+    environment:
+      - 'UseInMemoryDatabase=true'
+      - 'ASPNETCORE_ENVIRONMENT=Development'
+      - 'ASPNETCORE_Kestrel__Certificates__Default__Password=1qaz2wsx@'
+      - 'ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx'
+    volumes:
+      - ~/.aspnet/https:/https:ro
