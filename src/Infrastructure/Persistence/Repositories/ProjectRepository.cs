@@ -1,40 +1,53 @@
-using LogisticsBackOffice.Application.Common.Interfaces;
+﻿using LogisticsBackOffice.Application.Common.Interfaces;
 using LogisticsBackOffice.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LogisticsBackOffice.Infrastructure.Persistence.Repositories;
-
-internal class ProjectRepository : IProjectRepository
+public class ProjectRepository(IRepositoryAsync<Project> projectRepository,
+    ApplicationDbContext dbContext) : IProjectRepository
 {
-    private readonly ApplicationDbContext _context;
-
-    public ProjectRepository(ApplicationDbContext context)
+    private readonly IRepositoryAsync<Project> _projectRepository = projectRepository;
+    private readonly ApplicationDbContext _dbContext = dbContext;
+    public IQueryable<Project> GetAll => _projectRepository.Entities;
+    public async Task<Project> AddProjectAsync(Project project)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        return await _projectRepository.AddAsync(project);
     }
-
-    public async Task AddProjectAsync(Project project, CancellationToken cancellationToken)
+    public async Task<Project?> GetProjectByIdAsync(int id)
     {
-        await _context.Projects.AddAsync(project, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        var resultProject = await _dbContext.Project
+            .AsNoTracking()
+            .Where(p => p.Id == id)
+            .Include(p => p.Client)
+            .Include(p => p.Contact)
+            .Include(p => p.GeographicalInfo)
+            .Include(p => p.ProjectDetail)
+            .OrderBy(p => p.Id)
+            .FirstOrDefaultAsync();
+        return resultProject;
     }
-
-    public IQueryable<Project> GetAllProjects()
+    public async Task<List<Project?>> GetPagedReponseAsync(int pageNumber, int pageSize)
     {
-        return _context.Projects
-            .AsQueryable()
-            .AsNoTracking();
+        return await _projectRepository.GetPagedReponseAsync(pageNumber, pageSize);
     }
-
-    public async Task<Project?> FindProjectByIdAsync(int id, CancellationToken cancellationToken)
+    public Project UpdateProjectAsync(Project project)
     {
-        return await _context.Projects.FirstOrDefaultAsync(
-            t => t.Id == id, cancellationToken);
+        return _projectRepository.Update(project);
     }
-
-    public async Task UpdateProjectAsync(Project project, CancellationToken cancellationToken)
+    public async Task<List<Project>> GetProjectAllAsync()
     {
-        _context.Projects.Update(project);
-        await _context.SaveChangesAsync(cancellationToken);
+        var resultProjects = new List<Project>();
+        resultProjects = await _dbContext.Project
+            .Include(p => p.Client)
+            .Include(p => p.Contact)
+            .Include(p => p.GeographicalInfo).ThenInclude(g => g!.State)
+            .Include(p => p.ProjectDetail).ThenInclude(pd => pd.Service)
+            .AsNoTracking()
+            .OrderBy(p => p.Id).ToListAsync();
+        return resultProjects;
+    }
+    public Task DeleteProjectAsync(Project project)
+    {
+        return _projectRepository.DeleteAsync(project);
     }
 }

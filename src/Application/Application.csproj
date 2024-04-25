@@ -1,21 +1,32 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
+        <RootNamespace>LogisticsBackOffice.Application</RootNamespace>
+        <AssemblyName>LogisticsBackOffice.Application</AssemblyName>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <AssemblyName>LogisticsBackOffice.Application</AssemblyName>
-        <LangVersion>default</LangVersion>
-        <RootNamespace>LogisticsBackOffice.Application</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="GreenDonut" Version="13.5.1" />
-        <PackageReference Include="HotChocolate.Data" Version="13.5.1" />
-        <PackageReference Include="HotChocolate.Types" Version="13.5.1" />
-        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.11" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+      <Compile Remove="Common\Mappings\**" />
+      <EmbeddedResource Remove="Common\Mappings\**" />
+      <None Remove="Common\Mappings\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AutoMapper" Version="13.0.1" />
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.0" />
+        <PackageReference Include="GreenDonut" Version="13.9.0" />
+        <PackageReference Include="HotChocolate.Data" Version="13.9.0" />
+        <PackageReference Include="HotChocolate.Data.EntityFramework" Version="13.9.0" />
+        <PackageReference Include="HotChocolate.Types" Version="13.9.0" />
+        <PackageReference Include="HotChocolate.Types.Analyzers" Version="13.9.0" />
+        <PackageReference Include="HotChocolate.Types.Selections" Version="10.5.5" />
+        <PackageReference Include="MediatR" Version="12.2.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.3" />
     </ItemGroup>
 
     <ItemGroup>
@@ -23,7 +34,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="GeographicalInformation\Commands\AddCountryRegion\" />
+      <Folder Include="Common\DataObjects\" />
+      <Folder Include="Projects\Events\" />
+      <Folder Include="Workers\Events\" />
     </ItemGroup>
 
 </Project>

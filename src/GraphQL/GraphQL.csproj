@@ -1,47 +1,63 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
   <PropertyGroup>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1591</NoWarn>
+    <RootNamespace>LogisticsBackOffice.GraphQL</RootNamespace>
+    <AssemblyName>LogisticsBackOffice.GraphQL</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
-    <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <RootNamespace>LogisticsBackOffice.GraphQL</RootNamespace>
-        <LangVersion>default</LangVersion>
-        <AssemblyName>LogisticsBackOffice.GraphQL</AssemblyName>
-    </PropertyGroup>
+  
+  
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <OutputType>Exe</OutputType>
+    <NoWarn>$(NoWarn);NU1608</NoWarn>
+    <UserSecretsId>79543e3c-4eed-46e4-9f74-d1917609861e</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
+  </PropertyGroup>
+  
+  
+  <ItemGroup>
+    <Compile Remove="Mutations\GeographicalInfoMutation.cs" />
+    <Compile Remove="Queries\WorkerQuery.cs" />
+  </ItemGroup>
 
-    <PropertyGroup>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>$(NoWarn);1591</NoWarn>
-        <UserSecretsId>07a4f806-d52d-49aa-93f1-1f847e27e778</UserSecretsId>
-    </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="HotChocolate.AspNetCore" Version="13.9.0" />
+    <PackageReference Include="HotChocolate.Data" Version="13.9.0" />
+    <PackageReference Include="HotChocolate.Data.EntityFramework" Version="13.9.0" />
+    <PackageReference Include="HotChocolate.Types" Version="13.9.0" />
+    <PackageReference Include="HotChocolate.Types.Analyzers" Version="13.9.0" />
+    <PackageReference Include="HotChocolate.Types.Selections" Version="10.5.5" />
+    <PackageReference Include="MediatR" Version="12.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.3" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\Application\Application.csproj" />
-        <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="HotChocolate.AspNetCore" Version="13.5.1" />
-        <PackageReference Include="HotChocolate.AspNetCore.Voyager" Version="10.5.5" />
-        <PackageReference Include="HotChocolate.Data" Version="13.5.1" />
-        <PackageReference Include="HotChocolate.PersistedQueries.InMemory" Version="13.5.1" />
-        <PackageReference Include="HotChocolate.Types" Version="13.5.1" />
-        <PackageReference Include="HotChocolate.Types.Filters" Version="13.5.1" />
-        <PackageReference Include="HotChocolate.Types.Sorting" Version="13.5.1" />
-        <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.11">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Subscriptions\" />
-    </ItemGroup>
+  <ItemGroup>
+    <Folder Include="logs\" />
+  </ItemGroup>
 
 </Project>

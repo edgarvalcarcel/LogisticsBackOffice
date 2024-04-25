@@ -1,103 +1,82 @@
+﻿using Duende.IdentityServer.EntityFramework.Options;
+using LogisticsBackOffice.Application.Common.Interfaces;
+using LogisticsBackOffice.Domain.Common;
 using LogisticsBackOffice.Domain.Entities;
+using LogisticsBackOffice.Infrastructure.Identity;
+using LogisticsBackOffice.Infrastructure.Persistence.Interceptors;
+using MediatR;
+using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using System.Reflection;
 
 namespace LogisticsBackOffice.Infrastructure.Persistence;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext(
+    DbContextOptions<ApplicationDbContext> options,
+    IOptions<OperationalStoreOptions> operationalStoreOptions,
+    IMediator mediator,
+    AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor,
+    IDateTime dateTime) : ApiAuthorizationDbContext<ApplicationUser>(options, operationalStoreOptions), IApplicationDbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
+    private readonly IMediator _mediator = mediator;
+    private readonly IDateTime _dateTime = dateTime;
+    private readonly AuditableEntitySaveChangesInterceptor _auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
+
+    public bool HasChanges => ChangeTracker.HasChanges();
+    public DbSet<Client> Client => Set<Client>();
+    public DbSet<ClientContact> ClientContact => Set<ClientContact>();
+    public DbSet<Contact> Contact => Set<Contact>();
+    public DbSet<CountryRegion> CountryRegion => Set<CountryRegion>();
+    public DbSet<GeographicalInfo> GeographicalInfo => Set<GeographicalInfo>();
+    public DbSet<Worker> Worker => Set<Worker>();
+    public DbSet<Project> Project => Set<Project>();
+    public DbSet<ProjectDetail> ProjectDetail => Set<ProjectDetail>();
+    public DbSet<Service> Service => Set<Service>();
+    public DbSet<State> State => Set<State>();
+    public DbSet<Status> Status => Set<Status>();
+    public DbSet<WorkOrder> WorkOrder => Set<WorkOrder>();
+    public DbSet<WorkOrderDetail> WorkOrderDetail => Set<WorkOrderDetail>();
+    public DbSet<CourierCompany> CourierCompany => Set<CourierCompany>();
+    public DbSet<Role> Role => Set<Role>();
+    protected override void OnModelCreating(ModelBuilder builder)
     {
+        ArgumentNullException.ThrowIfNull(builder, nameof(builder));
+        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        base.OnModelCreating(builder);
     }
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        #region project
-        modelBuilder.Entity<Project>()
-           .HasIndex(pr => new { pr.Id }).IsUnique();
-
-        modelBuilder.Entity<Project>()
-            .HasOne(pr => pr.GeographicalInfo)
-            .WithOne(gi => gi.Project);
-
-             modelBuilder.Entity<Project>()
-            .HasOne(pr => pr.Client)
-            .WithOne(gi => gi.Project);
-
-        modelBuilder.Entity<Project>()
-            .HasOne(pr => pr.Contact)
-            .WithOne(gi => gi.Project);
-
-        modelBuilder.Entity<Project>()
-            .HasOne(pr => pr.OperatorReceiving)
-            .WithOne(gi => gi.Project);
-
-        modelBuilder.Entity<Project>()
-            .HasMany(pr => pr.ProjectDetails)
-            .WithOne(pd => pd.Project)
-            .HasForeignKey(pd => pd.ProjectId);
-        #endregion project
-
-        #region project detail
-        modelBuilder.Entity<ProjectDetail>()
-            .HasIndex(pd => new { pd.Id}).IsUnique();
-
-        modelBuilder.Entity<ProjectDetail>()
-            .HasIndex(pd => new { pd.ProjectId,pd.ServiceId }).IsUnique();
-
-        modelBuilder.Entity<ProjectDetail>()
-            .HasOne(pd => pd.Project)
-            .WithMany(pr => pr.ProjectDetails);
-
-        modelBuilder.Entity<ProjectDetail>()
-            .HasMany(pd => pd.ProjectDetailServices)
-            .WithOne(pds => pds.ProjectDetail)
-            .HasForeignKey(pds => pds.ProjectDetailId);
-        #endregion project detail
-
-        #region project detail service
-        modelBuilder.Entity<ProjectDetailService>()
-           .HasIndex(pds => new { pds.Id }).IsUnique();
-
-        modelBuilder.Entity<ProjectDetailService>()
-            .HasIndex(pds => new { pds.ProjectDetailId, pds.ServiceId,pds.OperatorId }).IsUnique();
-
-        modelBuilder.Entity<ProjectDetailService>()
-            .HasOne(pds => pds.ProjectDetail)
-            .WithMany(pd => pd.ProjectDetailServices);
-        #endregion project detail service
-
-
-        modelBuilder
-            .Entity<Client>()
-            .HasIndex(a => a.Email)
-            .IsUnique();
-
-        modelBuilder
-           .Entity<Contact>()
-           .HasIndex(c => c.Email)
-           .IsUnique();
-
-        modelBuilder
-           .Entity<Operator>()
-           .HasIndex(o => o.Email)
-           .IsUnique();
-
-        modelBuilder
-            .Entity<ClientContact>()
-            .HasKey(cc => new { cc.ClientId, cc.ContactId });
+        ArgumentNullException.ThrowIfNull(optionsBuilder, nameof(optionsBuilder));
+        optionsBuilder.AddInterceptors(_auditableEntitySaveChangesInterceptor);
     }
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        foreach (var entry in ChangeTracker.Entries<BaseIdEntity>().ToList())
+        {
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entry.Entity.Created = _dateTime.Now;
+                    entry.Entity.CreatedBy = string.Empty;
+                    break;
+                case EntityState.Modified:
+                    entry.Entity.LastModified = _dateTime.Now;
+                    entry.Entity.LastModifiedBy = string.Empty;
+                    break;
+                case EntityState.Detached:
+                    break;
+                case EntityState.Unchanged:
+                    break;
+                case EntityState.Deleted:
+                    break;
+                default:
+                    break;
+            }
+        }
+        await _mediator.DispatchDomainEvents(this);
 
-    public DbSet<Client> Clients { get; set; } = default!;
-    public DbSet<ClientContact> ClientContacts { get; set; } = default!;
-    public DbSet<Contact> Contacts { get; set; } = default!;
-    public DbSet<CountryRegion> CountryRegions { get; set; } = default!;
-    public DbSet<GeographicalInfo> GeographicalInfo { get; set; } = default!;
-    public DbSet<Operator> Operators { get; set; } = default!;
-    public DbSet<Project> Projects { get; set; } = default!;
-    public DbSet<ProjectDetail> ProjectDetails { get; set; } = default!;
-    public DbSet<ProjectDetailService> ProjectDetailServices { get; set; } = default!;
-    public DbSet<ProjectGeographicalInfo> ProjectGeographicalInfo { get; set; } = default!;
-    public DbSet<Service> Services { get; set; } = default!;
-    public DbSet<State> State { get; set; } = default!;
-    public DbSet<WorkOrder> WorkOrders { get; set; } = default!;
+        return await base.SaveChangesAsync(cancellationToken);
+    }
 }

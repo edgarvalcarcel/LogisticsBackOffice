@@ -1,11 +1,14 @@
-using LogisticsBackOffice.Domain.Entities;
+﻿using LogisticsBackOffice.Domain.Entities;
 
 namespace LogisticsBackOffice.Application.Common.Interfaces;
-
 public interface IContactRepository
 {
-    Task AddContactAsync(Contact contact, CancellationToken cancellationToken);
-    IQueryable<Contact> GetAllContacts();
-    Task<Contact?> FindContactByIdAsync(int id, CancellationToken cancellationToken);
-    Task UpdateContactAsync(Contact contact, CancellationToken cancellationToken);
+    IQueryable<Contact> GetAll { get; }
+    Contact GetContactById(int id);
+    Task<List<Contact>> GetContactAllAsync();
+    Task<List<Contact?>> GetPagedReponseAsync(int pageNumber, int pageSize);
+    Task<Contact> AddContactAsync(Contact contact);
+    Contact UpdateContactAsync(Contact contact);
+    Task DeleteContactAsync(Contact contact);
+    Contact? GetContactByData(Contact contactEntity);
 }

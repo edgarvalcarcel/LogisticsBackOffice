@@ -1,40 +1,59 @@
+﻿using LogisticsBackOffice.Application.Common.Exceptions;
 using LogisticsBackOffice.Application.Common.Interfaces;
 using LogisticsBackOffice.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using ArgumentNullException = LogisticsBackOffice.Application.Common.Exceptions.ArgumentNullException;
+
 
 namespace LogisticsBackOffice.Infrastructure.Persistence.Repositories;
-
-internal class WorkOrderRepository : IWorkOrderRepository
+public class WorkOrderRepository(IRepositoryAsync<WorkOrder> workOrderRepository,
+ApplicationDbContext dbContext) : IWorkOrderRepository
 {
-    private readonly ApplicationDbContext _context;
+    public IQueryable<WorkOrder> GetAll => throw new NotImplementedException();
 
-    public WorkOrderRepository(ApplicationDbContext context)
+    public async Task<WorkOrder?> AddWorkOrderAsync(WorkOrder workOrder)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        return await workOrderRepository.AddAsync(workOrder);
     }
 
-    public async Task AddWorkOrderAsync(WorkOrder workOrder, CancellationToken cancellationToken)
+    public Task DeleteWorkOrderAsync(WorkOrder workOrder)
     {
-        await _context.WorkOrders.AddAsync(workOrder, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        return workOrderRepository.DeleteAsync(workOrder);
     }
 
-    public IQueryable<WorkOrder> GetAllWorkOrders()
+    public async Task<List<WorkOrder?>> GetPagedReponseAsync(int pageNumber, int pageSize)
     {
-        return _context.WorkOrders
-            .AsQueryable()
-            .AsNoTracking();
+        return await workOrderRepository.GetPagedReponseAsync(pageNumber, pageSize);
     }
 
-    public async Task<WorkOrder?> FindWorkOrderByIdAsync(int id, CancellationToken cancellationToken)
+    public async Task<WorkOrder?> GetWorkOrderByIdAsync(int id)
     {
-        return await _context.WorkOrders.FirstOrDefaultAsync(
-            t => t.Id == id, cancellationToken);
+        var resultWorkOrder = new WorkOrder();
+        resultWorkOrder = await dbContext.WorkOrder
+            .AsNoTracking()
+            .Where(c => c.Id == id)
+            .Include(w => w.Service)
+            .Include(w => w!.Status)
+             .Include(w => w!.Project).ThenInclude(p => p.GeographicalInfo)
+            .OrderBy(c => c.Id).DefaultIfEmpty()
+             .FirstOrDefaultAsync() ?? throw new NotFoundException(nameof(WorkOrder), id);
+        return resultWorkOrder;
     }
 
-    public async Task UpdateWorkOrderAsync(WorkOrder workOrder, CancellationToken cancellationToken)
+    public async Task<List<WorkOrder?>> GeWorkOrderAllAsync()
     {
-        _context.WorkOrders.Update(workOrder);
-        await _context.SaveChangesAsync(cancellationToken);
+        List<WorkOrder?> resultWorkOrders = [];
+        resultWorkOrders = await dbContext.WorkOrder
+         .Include(w => w.Service)
+         .Include(w => w!.Status)
+         .Include(w => w!.Project).ThenInclude(p => p.GeographicalInfo)
+         .AsNoTracking().OrderBy(c => c.Id).DefaultIfEmpty().ToListAsync() ?? resultWorkOrders;
+        return resultWorkOrders;
     }
-   }
+
+    public WorkOrder UpdateWorkOrderAsync(WorkOrder workOrder)
+    {
+        ArgumentNullException.ThrowIfNull(workOrder);
+        return workOrderRepository.Update(workOrder);
+    }
+}

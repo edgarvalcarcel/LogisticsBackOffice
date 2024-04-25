@@ -1,90 +1,99 @@
-# Logistics BackOffice GraphQL API 
+# LogisticsBackOffice
 
-The repository contains a backend of Logistics BackOffice project for Logistics and field service management. The backend serves as a GraphQL server. Application has docker container orchestration configured.
+## Introduction
 
-## Database Schema
+Clean Architecture GraphQL for Logistics Back Office. Scalable and maintainable application 
+with a flexible and efficient GraphQL API of a Dashboard of logistics
+## Features of Dashboard Logistics
 
-![database schema](https://storageinstanceaccount.blob.core.windows.net/receivingphotos/EntitiesModel.png?sv=2021-10-04&spr=https%2Chttp&st=2023-08-06T23%3A17%3A51Z&se=2023-08-07T23%3A17%3A51Z&sr=b&sp=r&sig=Ey5wai%2FlnyaGVGkVn7UnGobytvhHEQkA756u7tOAaoY%3D&rsct=image%2Fpng)
+- Main Menu
+  - Projects
+  - WorkOrders  «
+  - 	Operators
+  - Clients  »
+  - 	Contacts
+	
+- Resources
+  - Services	
+  - States		
+  - Regions
 
-What's included:
+- Settings
+  - Profile
+  - Settings	
 
-- [.NET 6.0](https://dotnet.microsoft.com/download/dotnet/6.0)
-- [Hot Chocolate](https://chillicream.com/docs/hotchocolate)
-- [MediatR]
-- [EF Core](https://docs.microsoft.com/en-us/ef/core/)
-- [Azure SQL]
-- [Docker] 
 
-### Docker Configuration
+## Technical Features
 
-In order to get Docker working, you will need to add a temporary SSL cert and mount a volume to hold that cert. You can find [Microsoft Docs](https://docs.microsoft.com/en-us/aspnet/core/security/docker-https?view=aspnetcore-6.0) that describe the steps required for Windows, macOS, and Linux.
+- Queries
+  - Paging
+  - Sorting
+  - Filtering
+  - Projections
+- Mutations
+  - Create
+  - Update
+  - Delete
+  - Fluent Validation
 
-The following will need to be executed from your terminal to create a cert.
+## Frontend
+  - React Native
+  
+## Technologies
 
-For Windows:
-
+The project contains the following technology:
 ```bash
-dotnet dev-certs https -ep %USERPROFILE%\.aspnet\https\aspnetapp.pfx -p 1qaz2wsx@
-dotnet dev-certs https --trust
-```
-
-FOR macOS:
-
+•	ASP.NET Core 8
+•	Entity Framework Core 8
+•	MediatR
+•	AutoMapper
+•	FluentValidation
+•	NUnit, FluentAssertions, Moq & Respawn
+•	Fluent Assertions
+•	Lazy Cache
+•	RestSharp
+•	Serilog
+•	Moq
+•	Nunit
+•	Bogus
+ ```
+ ## Database
+The project is configured for SQL server, once downloaded to your local PC, proceed to edit the file: appsettings.json located in the following projects:
 ```bash
-dotnet dev-certs https -ep ${HOME}/.aspnet/https/aspnetapp.pfx -p 1qaz2wsx@
-dotnet dev-certs https --trust
-```
-
-FOR Linux:
-
+•	src/Web
+•	test/Application.FunctionalTests/
+ ```
+these are the changes:
 ```bash
-dotnet dev-certs https -ep ${HOME}/.aspnet/https/aspnetapp.pfx -p 1qaz2wsx@
-```
-
-In order to build and run the docker containers locally, execute below command from the root of the solution.
-
-```bash
-docker-compose -f 'docker-compose.yml' up --build
-```
-
-### Database Configuration
-
-You will need to update `src/GraphQL/appsettings.json` as follows:
-
-```json
-{
   "ConnectionStrings": {
-    "SqlDbConnection": "Server=azure;Initial Catalog=LogisticsBackOffice;Persist Security Info=False;User ID=sa;Password=****;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-  },
-  "UseInMemoryDatabase": "false"
-}
-```
+    "DefaultConnection": "Data Source=YourPC\\YourInstance;Initial Catalog=LogisticsBackOffice;User ID=YourUser;Password=YourPassword;MultipleActiveResultSets=True;Connect Timeout=100;Encrypt=False;"
+  }
+ ```
+When you run the application the database will be automatically created, and be populated (if necessary) and the latest migrations will be applied.
+Running database migrations is easy. Ensure you add the following flags to your command (values assume you are executing from repository root)
 
-When you run the application the database will be automatically created (if necessary) and the latest migrations will be applied. The sample test data in `NDC_London_2019.json` will be imported automatically.
-
-### Database Migrations
-
-To use `dotnet-ef` for your migrations run below commands from the root of the project.
-
-Run Migrations:
-
+For example, to add a new migration from the root folder:
 ```bash
-dotnet ef migrations add InitialMigration --project src/Infrastructure --startup-project src/GraphQL --output-dir Persistence/Migrations
-```
+dotnet ef migrations add "SampleMigration" --project src\Infrastructure --startup-project src\Web --output-dir Data\Migrations
 
-Update database:
-
+ dotnet ef migrations add TableWorkOrder -s  .\src\GraphQL -v --context ApplicationDbContext --project .\src\Infrastructure 
+ dotnet ef migrations add AddInitialTables -s  .\src\GraphQL -v --context ApplicationDbContext --project .\src\Infrastructure
+ dotnet ef database update -s  .\src\GraphQL -v --context ApplicationDbContext --project .\src\Infrastructure 
+ 
+ dotnet ef migrations remove
+ ```
+to run migrations: 
 ```bash
-dotnet ef database update --project src/Infrastructure --startup-project src/GraphQL
+ dotnet ef database update -s  .\src\Web -v --context ApplicationDbContext --project .\src\Infrastructure
+ ```
+## Run Test
+
+The solution contains unit, integration, and functional tests.
+
+To run the tests:
+```bash
+dotnet test
 ```
 
-### Build and run from source
-
-With Visual studio:
-Open up the solutions using Visual studio.
-
-- Restore solution `nuget` packages.
-- Rebuild solution once.
-- Run the solution.
-- Banana cake pop local URL [here](https://localhost:5001/graphql).
-- Voyager local URL [here](https://localhost:5001/graphql-voyager)
+## Help
+edgarvalcarcel@hotmail.com

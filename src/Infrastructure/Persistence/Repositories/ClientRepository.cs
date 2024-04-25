@@ -1,40 +1,73 @@
+﻿using LogisticsBackOffice.Application.Common.Exceptions;
 using LogisticsBackOffice.Application.Common.Interfaces;
 using LogisticsBackOffice.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using ArgumentNullException = LogisticsBackOffice.Application.Common.Exceptions.ArgumentNullException;
 
 namespace LogisticsBackOffice.Infrastructure.Persistence.Repositories;
-
-internal class ClientRepository : IClientRepository
+public class ClientRepository(IRepositoryAsync<Client> clientRepository,
+    IRepositoryAsync<GeographicalInfo> geographicalRepository,
+    IUnitOfWork unitOfWork,
+    ApplicationDbContext dbContext) : IClientRepository
 {
-    private readonly ApplicationDbContext _context;
-
-    public ClientRepository(ApplicationDbContext context)
+    private readonly IRepositoryAsync<Client> _clientRepository = clientRepository;
+    private readonly IRepositoryAsync<GeographicalInfo> _geographicalRepository = geographicalRepository;
+    private readonly ApplicationDbContext _dbContext = dbContext;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    public IQueryable<Client> GetAll => _clientRepository.Entities;
+    public async Task<Client?> AddClientAsync(Client client)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        return await _clientRepository.AddAsync(client);
     }
-
-    public async Task AddClientAsync(Client client, CancellationToken cancellationToken)
+    public async Task<Client?> GetClientByIdAsync(int id)
     {
-        await _context.Clients.AddAsync(client, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        Client resultClient = new Client();
+        resultClient = await _dbContext.Client
+            .AsNoTracking()
+            .Where(c => c.Id == id)
+            .Include(c => c.GeographicalInfo)
+            .ThenInclude(g => g!.State).ThenInclude(s => s!.CountryRegion)
+            .OrderBy(c => c.Id).DefaultIfEmpty()
+            .FirstOrDefaultAsync() ?? throw new NotFoundException(nameof(Client), id);
+        return resultClient;
     }
-
-    public IQueryable<Client> GetAllClients()
+    public async Task<List<Client?>> GetPagedReponseAsync(int pageNumber, int pageSize)
     {
-        return _context.Clients
-            .AsQueryable()
-            .AsNoTracking();
+        return await _clientRepository.GetPagedReponseAsync(pageNumber, pageSize);
     }
-
-    public async Task<Client?> FindClientByIdAsync(int id, CancellationToken cancellationToken)
+    public Client UpdateClientAsync(Client client)
     {
-        return await _context.Clients.FirstOrDefaultAsync(
-            t => t.Id == id, cancellationToken);
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(client.GeographicalInfo);
+
+        _geographicalRepository.Update(client.GeographicalInfo);
+        //unitOfWork.Commit();
+        return _clientRepository.Update(client);
     }
-
-    public async Task UpdateClientAsync(Client client, CancellationToken cancellationToken)
+    public async Task<List<Client>> GetClientAllAsync()
     {
-        _context.Clients.Update(client);
-        await _context.SaveChangesAsync(cancellationToken);
+        var resultClients = await _dbContext.Client
+            .Include(c => c.GeographicalInfo)
+            .ThenInclude(g => g!.State).ThenInclude(s => s!.CountryRegion)
+            .AsNoTracking()
+            .OrderBy(c => c.Id).ToListAsync() ?? throw new NotFoundException(nameof(List<Client>));
+        return resultClients;
+    }
+    public Task DeleteClientAsync(Client client)
+    {
+        return _clientRepository.DeleteAsync(client);
+    }
+    public Client? GetClientByData(Client clientEntity)
+    {
+        ArgumentNullException.ThrowIfNull(clientEntity);
+        ArgumentNullException.ThrowIfNull(clientEntity.FirstName);
+        ArgumentNullException.ThrowIfNull(clientEntity.LastName);
+        ArgumentNullException.ThrowIfNull(clientEntity.Email);
+
+        var resultClient = _dbContext.Client.Where(c => c.FirstName == clientEntity.FirstName
+        && c.LastName == clientEntity.LastName
+        && c.Email == clientEntity.Email
+        ).FirstOrDefault();
+        return resultClient;
     }
 }

@@ -1,40 +1,38 @@
+﻿using LogisticsBackOffice.Application.Common.Exceptions;
 using LogisticsBackOffice.Application.Common.Interfaces;
 using LogisticsBackOffice.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
+using ArgumentNullException = LogisticsBackOffice.Application.Common.Exceptions.ArgumentNullException;
 
 namespace LogisticsBackOffice.Infrastructure.Persistence.Repositories;
-
-internal class ServiceRepository : IServiceRepository
+public class ServiceRepository(IRepositoryAsync<Service> serviceRepository) : IServiceRepository
 {
-    private readonly ApplicationDbContext _context;
-
-    public ServiceRepository(ApplicationDbContext context)
+    private readonly IRepositoryAsync<Service> _serviceRepository = serviceRepository;
+    public IQueryable<Service> GetAll => _serviceRepository.Entities;
+    public async Task<Service?> AddServiceAsync(Service service)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        return await _serviceRepository.AddAsync(service);
     }
-
-    public async Task AddServiceAsync(Service service, CancellationToken cancellationToken)
+    public async Task<Service?> GetServiceByIdAsync(int id)
     {
-        await _context.Services.AddAsync(service, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        var resultService = await _serviceRepository.GetByIdAsync(id) ?? throw new NotFoundException(nameof(Service), id);
+        return resultService;
     }
-
-    public IQueryable<Service> GetAllServices()
+    public async Task<List<Service?>> GetPagedReponseAsync(int pageNumber, int pageSize)
     {
-        return _context.Services
-            .AsQueryable()
-            .AsNoTracking();
+        return await _serviceRepository.GetPagedReponseAsync(pageNumber, pageSize);
     }
-
-    public async Task<Service?> FindServiceByIdAsync(int id, CancellationToken cancellationToken)
+    public Service UpdateServiceAsync(Service service)
     {
-        return await _context.Services.FirstOrDefaultAsync(
-            t => t.Id == id, cancellationToken);
+        ArgumentNullException.ThrowIfNull(service);
+        return _serviceRepository.Update(service);
     }
-
-    public async Task UpdateServiceAsync(Service service, CancellationToken cancellationToken)
+    public async Task<List<Service>> GetServiceAllAsync()
     {
-        _context.Services.Update(service);
-        await _context.SaveChangesAsync(cancellationToken);
+        var resultServices = _serviceRepository.GetAllAsync() ?? throw new NotFoundException(nameof(List<Service>));
+        return await resultServices;
+    }
+    public Task DeleteServiceAsync(Service service)
+    {
+        return _serviceRepository.DeleteAsync(service);
     }
 }

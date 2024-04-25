@@ -1,11 +1,12 @@
-using LogisticsBackOffice.Domain.Entities;
-
+﻿using LogisticsBackOffice.Domain.Entities;
 namespace LogisticsBackOffice.Application.Common.Interfaces;
-
 public interface IServiceRepository
 {
-    Task AddServiceAsync(Service service, CancellationToken cancellationToken);
-    IQueryable<Service> GetAllServices();
-    Task<Service?> FindServiceByIdAsync(int id, CancellationToken cancellationToken);
-    Task UpdateServiceAsync(Service service, CancellationToken cancellationToken);
+    IQueryable<Service> GetAll { get; }
+    Task<Service?> GetServiceByIdAsync(int id);
+    Task<List<Service>> GetServiceAllAsync();
+    Task<List<Service?>> GetPagedReponseAsync(int pageNumber, int pageSize);
+    Task<Service?> AddServiceAsync(Service service);
+    Service UpdateServiceAsync(Service service);
+    Task DeleteServiceAsync(Service service);
 }

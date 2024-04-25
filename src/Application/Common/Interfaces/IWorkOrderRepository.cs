@@ -1,11 +1,13 @@
-using LogisticsBackOffice.Domain.Entities;
+﻿using LogisticsBackOffice.Domain.Entities;
 
 namespace LogisticsBackOffice.Application.Common.Interfaces;
-
 public interface IWorkOrderRepository
 {
-    Task AddWorkOrderAsync(WorkOrder workOrder, CancellationToken cancellationToken);
-    IQueryable<WorkOrder> GetAllWorkOrders();
-    Task<WorkOrder?> FindWorkOrderByIdAsync(int id, CancellationToken cancellationToken);
-    Task UpdateWorkOrderAsync(WorkOrder workOrder, CancellationToken cancellationToken);
+    IQueryable<WorkOrder> GetAll { get; }
+    Task<WorkOrder?> GetWorkOrderByIdAsync(int id);
+    Task<List<WorkOrder?>> GeWorkOrderAllAsync();
+    Task<List<WorkOrder?>> GetPagedReponseAsync(int pageNumber, int pageSize);
+    Task<WorkOrder?> AddWorkOrderAsync(WorkOrder workOrder);
+    WorkOrder UpdateWorkOrderAsync(WorkOrder workOrder);
+    Task DeleteWorkOrderAsync(WorkOrder workOrder);
 }

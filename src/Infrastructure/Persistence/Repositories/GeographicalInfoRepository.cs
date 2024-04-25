@@ -1,40 +1,58 @@
+﻿using LogisticsBackOffice.Application.Common.Exceptions;
 using LogisticsBackOffice.Application.Common.Interfaces;
 using LogisticsBackOffice.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using ArgumentNullException = LogisticsBackOffice.Application.Common.Exceptions.ArgumentNullException;
 
 namespace LogisticsBackOffice.Infrastructure.Persistence.Repositories;
-
-internal class GeographicalInfoRepository : IGeographicalInfoRepository
+public class GeographicalInfoRepository(IRepositoryAsync<GeographicalInfo> geoInformationRepository, ApplicationDbContext dbContext) : IGeographicalInfoRepository
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IRepositoryAsync<GeographicalInfo> _geoInformationRepository = geoInformationRepository;
+    private readonly ApplicationDbContext _dbContext = dbContext;
 
-    public GeographicalInfoRepository(ApplicationDbContext context)
+    public IQueryable<GeographicalInfo> GetAll() => _geoInformationRepository.Entities;
+    public async Task<GeographicalInfo> AddGeoInformationAsync(GeographicalInfo geoInformation)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        return await _geoInformationRepository.AddAsync(geoInformation);
     }
 
-    public async Task AddGeographicalInfoAsync(GeographicalInfo geographicalInfo, CancellationToken cancellationToken)
+    public GeographicalInfo GetGeoInformationById(int id)
     {
-        await _context.GeographicalInfo.AddAsync(geographicalInfo, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        var resultGeographicalInfo = new GeographicalInfo("", "", "", "", "", "");
+        resultGeographicalInfo = _dbContext.GeographicalInfo.Where(g => g.Id == id).Include(g => g.State).FirstOrDefault() ?? throw new NotFoundException(nameof(GeographicalInfo), id);
+        return resultGeographicalInfo;
     }
 
-    public IQueryable<GeographicalInfo> GetAllGeographicalInfo()
+    public GeographicalInfo UpdateGeoInformationAsync(GeographicalInfo geoInformation)
     {
-        return _context.GeographicalInfo
-            .AsQueryable()
-            .AsNoTracking();
+        return _geoInformationRepository.Update(geoInformation);
     }
 
-    public async Task<GeographicalInfo?> FindGeographicalInfoByIdAsync(int id, CancellationToken cancellationToken)
+    public Task DeleteGeoInformationAsync(GeographicalInfo geoInformation)
     {
-        return await _context.GeographicalInfo.FirstOrDefaultAsync(
-            t => t.Id == id, cancellationToken);
+        return _geoInformationRepository.DeleteAsync(geoInformation);
     }
 
-    public async Task UpdateGeographicalInfoAsync(GeographicalInfo geographicalInfo, CancellationToken cancellationToken)
+    public async Task<List<GeographicalInfo>> GetAllAsync()
     {
-        _context.GeographicalInfo.Update(geographicalInfo);
-        await _context.SaveChangesAsync(cancellationToken);
+        return await _geoInformationRepository.GetAllAsync();
+    }
+
+    public GeographicalInfo? GetGeoInformationByData(GeographicalInfo dataGeo)
+    {
+        ArgumentNullException.ThrowIfNull(dataGeo);
+        ArgumentNullException.ThrowIfNull(dataGeo.AddressLine1);
+        ArgumentNullException.ThrowIfNull(dataGeo.AddressLine2);
+        ArgumentNullException.ThrowIfNull(dataGeo.City);
+        ArgumentNullException.ThrowIfNull(dataGeo.PostalCode);
+
+        var geoDataResult = _dbContext.GeographicalInfo
+        .Where(
+          g => g.AddressLine1 == dataGeo.AddressLine1
+            && g.AddressLine2 == dataGeo.AddressLine2
+          && g.City == dataGeo.City
+          && g.PostalCode == dataGeo.PostalCode)
+        .Include(c => c.State).FirstOrDefault();
+        return geoDataResult;
     }
 }

@@ -1,13 +1,25 @@
-﻿{
-  "$schema": "https://json.schemastore.org/launchsettings.json",
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:39185", "sslPort": 39185
-    }
-  },
+{
   "profiles": {
+    "http": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "graphql",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:5120"
+    },
+    "https": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "graphql",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:7114;http://localhost:5120"
+    },
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
@@ -16,46 +28,26 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "DEVELOPMENT": {
-      "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": true,
-      "launchUrl": "graphql",
-      "applicationUrl": "https://localhost:4001;http://localhost:4000",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    "STAGING": {
-      "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": false,
-      "applicationUrl": "https://localhost:4001;http://localhost:4000",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Staging"
-      }
-    },
-    "PRODUCTION": {
-      "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": false,
-      "applicationUrl": "https://localhost:4001;http://localhost:4000",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Production"
-      }
-    },
-    "Docker:DEV": {
+    "Docker": {
       "commandName": "Docker",
       "launchBrowser": true,
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/graphql",
       "environmentVariables": {
-        "UseInMemoryDatabase": "true",
-        "ASPNETCORE_HTTPS_PORT": "4001",
-        "ASPNETCORE_URLS": "https://+:4001;http://+:4000"
+        "ASPNETCORE_HTTPS_PORTS": "8081",
+        "ASPNETCORE_HTTP_PORTS": "8080",
+        "ASPNETCORE_ENVIRONMENT": "Release"
       },
-      "httpPort": 4000,
-      "useSSL": true,
-      "sslPort": 4001
+      "publishAllPorts": true,
+      "useSSL": true
+    }
+  },
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:46148",
+      "sslPort": 44339
     }
   }
 }

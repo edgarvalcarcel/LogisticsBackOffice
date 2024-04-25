@@ -1,21 +1,38 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
+        <RootNamespace>LogisticsBackOffice.Domain</RootNamespace>
+        <AssemblyName>LogisticsBackOffice.Domain</AssemblyName>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <AssemblyName>LogisticsBackOffice.Domain</AssemblyName>
-        <RootNamespace>LogisticsBackOffice.Domain</RootNamespace>
-        <LangVersion>default</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="Payloads" />
+      <Compile Remove="Events\ContactEvents\**" />
+      <Compile Remove="Events\CountryRegionsEvents\**" />
+      <Compile Remove="Events\GeographicalInformationEvents\**" />
+      <Compile Remove="Events\OperatorEvents\**" />
+      <Compile Remove="Events\ServiceEvents\**" />
+      <EmbeddedResource Remove="Events\ContactEvents\**" />
+      <EmbeddedResource Remove="Events\CountryRegionsEvents\**" />
+      <EmbeddedResource Remove="Events\GeographicalInformationEvents\**" />
+      <EmbeddedResource Remove="Events\OperatorEvents\**" />
+      <EmbeddedResource Remove="Events\ServiceEvents\**" />
+      <None Remove="Events\ContactEvents\**" />
+      <None Remove="Events\CountryRegionsEvents\**" />
+      <None Remove="Events\GeographicalInformationEvents\**" />
+      <None Remove="Events\OperatorEvents\**" />
+      <None Remove="Events\ServiceEvents\**" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="HotChocolate.Data" Version="13.5.1" />
-      <PackageReference Include="HotChocolate.Types" Version="13.5.1" />
+      <PackageReference Include="MediatR" Version="12.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Exceptions\" />
+      <Folder Include="ValueObjects\" />
     </ItemGroup>
 
 </Project>

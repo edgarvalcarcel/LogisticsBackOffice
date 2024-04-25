@@ -1,17 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace LogisticsBackOffice.Domain.Entities
+﻿namespace LogisticsBackOffice.Domain.Entities;
+public class Service : BaseIdEntity
 {
-    public class Service
-    {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
-        public string? Name { get; set; }
-        public bool? IsReceivingService { get; set; }
-        public bool? IsProcessingService { get; set; }
-        public bool? IsWarehouseService { get; set; }
-        public bool? IsCleaningService { get; set; }
-    }
+    public string? Name { get; set; }
+    public decimal Rate { get; init; }
+    public int? ServiceTypeId { get; set; }
+    public virtual ServiceType? ServiceType { get; set; }
 }
